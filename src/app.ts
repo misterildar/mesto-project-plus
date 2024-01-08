@@ -4,11 +4,17 @@ import userRouter from './routes/users';
 import cardRouter from './routes/cards';
 import { UserRequest } from './utils/userRequest';
 import errorHandler from './utils/errors/errorHandler';
+import NotFoundError from './utils/errors/notFoundError';
 import { DEFAULT_PORT, MONGO_DB_URL } from './utils/constants';
 
 const app = express();
 
 const { PORT = DEFAULT_PORT } = process.env;
+
+app.use((req: UserRequest, res: Response, next: NextFunction) => {
+  req.user = { _id: '659a6b45373b045118e16f1e' };
+  next();
+});
 
 app.use(express.json());
 app.use(userRouter);
@@ -16,10 +22,7 @@ app.use(cardRouter);
 app.use(errorHandler);
 
 app.use((req: UserRequest, res: Response, next: NextFunction) => {
-  req.user = {
-    _id: '659a6b45373b045118e16f1e',
-  };
-  next();
+  next(new NotFoundError('Страницы не существует'));
 });
 
 const connect = async () => {

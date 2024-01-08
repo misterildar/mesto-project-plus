@@ -13,7 +13,7 @@ export const getCards = async (
 ) => {
   try {
     const cards = await Card.find({});
-    return res.status(StatusCodes.OK).send(cards);
+    return res.send(cards);
   } catch (error) {
     return next(error);
   }
@@ -28,11 +28,7 @@ export const createCard = async (
     const owner = req.user?._id;
     const { name, link } = req.body;
     const newCard = await Card.create({ name, link, owner });
-    if (!newCard) {
-      throw new NotFoundError(ErrorMessage.INCORRECT_DATA_CREATION_CARD);
-    } else {
-      res.status(StatusCodes.CREATED).send(newCard);
-    }
+    res.status(StatusCodes.CREATED).send(newCard);
   } catch (error) {
     if (error instanceof Error.ValidationError) {
       next(new BadRequestError(ErrorMessage.INCORRECT_DATA));

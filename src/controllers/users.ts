@@ -12,7 +12,7 @@ export const getUsers = async (
 ) => {
   try {
     const users = await User.find({});
-    return res.status(StatusCodes.OK).send(users);
+    return res.send(users);
   } catch (error) {
     return next(error);
   }
@@ -26,10 +26,10 @@ export const getUserById = async (
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
-    if (!userId) {
+    if (!user) {
       throw new NotFoundError(ErrorMessage.USER_NOT_FOUND);
     } else {
-      res.status(StatusCodes.OK).send(user);
+      res.send(user);
     }
   } catch (error) {
     if (error instanceof Error.CastError) {
@@ -47,11 +47,7 @@ export const createUser = async (
 ) => {
   try {
     const newUser = await User.create(req.body);
-    if (!newUser) {
-      throw new NotFoundError(ErrorMessage.INCORRECT_DATA_CREATION_USER);
-    } else {
-      res.status(StatusCodes.CREATED).send(newUser);
-    }
+    res.status(StatusCodes.CREATED).send(newUser);
   } catch (error) {
     if (error instanceof Error.ValidationError) {
       next(new BadRequestError(ErrorMessage.INCORRECT_DATA));
@@ -69,13 +65,15 @@ export const updateUser = async (
   try {
     const data = req.body;
     if (!data) {
-      throw new NotFoundError(ErrorMessage.USER_NOT_FOUND);
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ message: ErrorMessage.USER_NOT_FOUND });
     } else {
       const { name, about } = data;
       const updateDataUser = await User.findByIdAndUpdate(
         req.params.userId,
         { name, about },
-        { new: true }
+        { new: true, runValidators: true }
       );
       res.status(StatusCodes.OK).send(updateDataUser);
     }
@@ -96,12 +94,14 @@ export const updateAvatar = async (
   try {
     const { avatar } = req.body;
     if (!avatar) {
-      throw new NotFoundError(ErrorMessage.USER_NOT_FOUND);
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ message: ErrorMessage.USER_NOT_FOUND });
     } else {
       const updateAvatarUser = await User.findByIdAndUpdate(
         req.params.userId,
         { avatar },
-        { name: true }
+        { new: true, runValidators: true }
       );
       res.status(StatusCodes.OK).send(updateAvatarUser);
     }
