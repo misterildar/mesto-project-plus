@@ -19,11 +19,12 @@ app.use((req: UserRequest, res: Response, next: NextFunction) => {
 app.use(express.json());
 app.use(userRouter);
 app.use(cardRouter);
-app.use(errorHandler);
 
 app.use((req: UserRequest, res: Response, next: NextFunction) => {
   next(new NotFoundError('Страницы не существует'));
 });
+
+app.use(errorHandler);
 
 const connect = async () => {
   try {

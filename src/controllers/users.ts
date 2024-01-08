@@ -1,6 +1,7 @@
 import { Error } from 'mongoose';
 import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
+import { UserRequest } from '../utils/userRequest';
 import NotFoundError from '../utils/errors/notFoundError';
 import { StatusCodes, ErrorMessage } from '../utils/constants';
 import BadRequestError from '../utils/errors/badRequestError';
@@ -58,7 +59,7 @@ export const createUser = async (
 };
 
 export const updateUser = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -71,7 +72,7 @@ export const updateUser = async (
     } else {
       const { name, about } = data;
       const updateDataUser = await User.findByIdAndUpdate(
-        req.params.userId,
+        req.user?._id,
         { name, about },
         { new: true, runValidators: true }
       );
@@ -87,7 +88,7 @@ export const updateUser = async (
 };
 
 export const updateAvatar = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -99,7 +100,7 @@ export const updateAvatar = async (
         .send({ message: ErrorMessage.USER_NOT_FOUND });
     } else {
       const updateAvatarUser = await User.findByIdAndUpdate(
-        req.params.userId,
+        req.user?._id,
         { avatar },
         { new: true, runValidators: true }
       );
