@@ -51,7 +51,7 @@ export const deleteCardById = async (
       throw new NotFoundError(ErrorMessage.CARD_NOT_FOUND);
     }
     if (card?.owner.toString() !== req.user?._id) {
-      next(new ForbiddenError(ErrorMessage.FORBIDDEN));
+      throw new ForbiddenError(ErrorMessage.FORBIDDEN);
     }
     const deleteCard = await Card.findByIdAndRemove(cardId);
     if (!deleteCard) {
