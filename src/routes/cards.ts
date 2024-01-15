@@ -13,10 +13,10 @@ import {
 
 const cardRouter = Router();
 
-cardRouter.get('/cards', getCards);
-cardRouter.post('/cards', createCardValidation, createCard);
-cardRouter.delete('/cards/:cardId', deleteCardByIdValidation, deleteCardById);
-cardRouter.put('/cards/:cardId/likes', likesCard);
-cardRouter.delete('/cards/:cardId/likes', deleteLikesCard);
+cardRouter.get('/', getCards);
+cardRouter.post('/', createCardValidation, createCard);
+cardRouter.delete('/:cardId', deleteCardByIdValidation, deleteCardById);
+cardRouter.put('/:cardId/likes', likesCard);
+cardRouter.delete('/:cardId/likes', deleteLikesCard);
 
 export default cardRouter;

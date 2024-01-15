@@ -69,11 +69,11 @@ userSchema.static(
   async function findUserByCredentials(email: string, password: string) {
     const user: User | null = await this.findOne({ email }).select('+password');
     if (!user) {
-      return new AuthError(ErrorMessage.INVALID_EMAIL_PASSWORD);
+      throw new AuthError(ErrorMessage.INVALID_EMAIL_PASSWORD);
     }
     const matched = await bcryptjs.compare(password, user.password);
     if (!matched) {
-      return new AuthError(ErrorMessage.INVALID_EMAIL_PASSWORD);
+      throw new AuthError(ErrorMessage.INVALID_EMAIL_PASSWORD);
     }
     return user;
   }

@@ -5,6 +5,7 @@ export const StatusCodes = {
   AUTH_ERROR: 401,
   NOT_FOUND: 404,
   FORBIDDEN: 403,
+  CONFLICT_ERROR: 409,
   ERROR_SERVER: 500,
 };
 
@@ -23,6 +24,7 @@ export const ErrorMessage = {
   INVALID_EMAIL: 'Неверный email',
   INVALID_EMAIL_PASSWORD: 'Неправильные почта или пароль',
   PAGE_NOT_EXIST: 'Страницы не существует',
+  ALREADY_EXIST: 'Пользователь с таким email уже зарегистрирован',
 };
 
 export const DEFAULT_PORT = 3000;
@@ -42,3 +44,5 @@ export const DEFAULT_ABOUT = 'Исследователь';
 
 export const DEFAULT_URL_AVATAR =
   'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png';
+
+export const CONFLICT = 11000;

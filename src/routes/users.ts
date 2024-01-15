@@ -14,10 +14,10 @@ import {
 
 const userRouter = Router();
 
-userRouter.get('/users', getUsers);
-userRouter.get('/users/me', getUsersMe);
-userRouter.get('/users/:userId', getUserByIdValidation, getUserById);
-userRouter.patch('/users/me', updateUserValidation, updateUser);
-userRouter.patch('/users/me/avatar', updateAvatarValidation, updateAvatar);
+userRouter.get('/', getUsers);
+userRouter.get('/me', getUsersMe);
+userRouter.get('/:userId', getUserByIdValidation, getUserById);
+userRouter.patch('/me', updateUserValidation, updateUser);
+userRouter.patch('/me/avatar', updateAvatarValidation, updateAvatar);
 
 export default userRouter;

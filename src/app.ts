@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
-import express, { NextFunction, Response } from 'express';
+import express from 'express';
 import { errors } from 'celebrate';
 import auth from './middlewares/auth';
-import userRouter from './routes/users';
-import cardRouter from './routes/cards';
 import errorHandler from './utils/errors/errorHandler';
 import pageNotExist from './utils/errors/page-not-exist';
 import { login, createUser } from './controllers/users';
@@ -14,6 +12,7 @@ import {
   loginValidation,
 } from './middlewares/validation-user';
 import limiter from './utils/rate-limit';
+import routes from './routes/index';
 
 const app = express();
 
@@ -30,8 +29,7 @@ app.post('/signup', createUserValidation, createUser);
 
 app.use(auth);
 
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use(routes);
 
 app.use(pageNotExist);
 

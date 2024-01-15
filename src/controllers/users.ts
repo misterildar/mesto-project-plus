@@ -5,8 +5,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import { UserRequest } from '../utils/userRequest';
 import NotFoundError from '../utils/errors/notFoundError';
-import { StatusCodes, ErrorMessage } from '../utils/constants';
+import ConflictError from '../utils/errors/conflictError';
 import BadRequestError from '../utils/errors/badRequestError';
+import { StatusCodes, ErrorMessage, CONFLICT } from '../utils/constants';
 
 export const getUsers = async (
   req: Request,
@@ -58,8 +59,16 @@ export const createUser = async (
       email,
       password: hashPassword,
     });
-    res.status(StatusCodes.CREATED).send(newUser);
-  } catch (error) {
+    res.status(StatusCodes.CREATED).send({
+      name: newUser.name,
+      about: newUser.about,
+      avatar: newUser.avatar,
+      email: newUser.email,
+    });
+  } catch (error: any) {
+    if (error.code === CONFLICT) {
+      next(new ConflictError(ErrorMessage.ALREADY_EXIST));
+    }
     if (error instanceof Error.ValidationError) {
       next(new BadRequestError(ErrorMessage.INCORRECT_DATA));
     } else {
@@ -136,10 +145,7 @@ export const login = async (
     const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
       expiresIn: '7d',
     });
-    res.cookie('token', token, {
-      httpOnly: true,
-    });
-    res.send({ message: 'Всё верно!' });
+    res.send({ token });
   } catch (error) {
     if (error instanceof Error.ValidationError) {
       next(new BadRequestError(ErrorMessage.INCORRECT_DATA));

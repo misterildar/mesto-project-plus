@@ -46,13 +46,18 @@ export const deleteCardById = async (
 ) => {
   try {
     const { cardId } = req.params;
+    const card = await Card.findById(cardId);
+    if (!card) {
+      throw new NotFoundError(ErrorMessage.CARD_NOT_FOUND);
+    }
+    if (card?.owner.toString() !== req.user?._id) {
+      next(new ForbiddenError(ErrorMessage.FORBIDDEN));
+    }
     const deleteCard = await Card.findByIdAndRemove(cardId);
     if (!deleteCard) {
       throw new NotFoundError(ErrorMessage.CARD_NOT_FOUND);
     } else {
-      if (deleteCard.owner.toString() !== req.user?._id) {
-        next(new ForbiddenError(ErrorMessage.FORBIDDEN));
-      }
+      await card?.deleteOne();
       res.status(StatusCodes.OK).send(deleteCard);
     }
   } catch (error) {
