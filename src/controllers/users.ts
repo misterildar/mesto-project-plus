@@ -1,5 +1,7 @@
 import { Error } from 'mongoose';
 import { NextFunction, Request, Response } from 'express';
+import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import { UserRequest } from '../utils/userRequest';
 import NotFoundError from '../utils/errors/notFoundError';
@@ -47,7 +49,15 @@ export const createUser = async (
   next: NextFunction
 ) => {
   try {
-    const newUser = await User.create(req.body);
+    const { name, about, avatar, email, password } = req.body;
+    const hashPassword = await bcryptjs.hash(password, 10);
+    const newUser = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hashPassword,
+    });
     res.status(StatusCodes.CREATED).send(newUser);
   } catch (error) {
     if (error instanceof Error.ValidationError) {
@@ -108,6 +118,51 @@ export const updateAvatar = async (
     }
   } catch (error) {
     if (error instanceof Error.ValidationError) {
+      next(new BadRequestError(ErrorMessage.INCORRECT_DATA));
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const login = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findUserByCredentials(email, password);
+    const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+      expiresIn: '7d',
+    });
+    res.cookie('token', token, {
+      httpOnly: true,
+    });
+    res.send({ message: 'Всё верно!' });
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      next(new BadRequestError(ErrorMessage.INCORRECT_DATA));
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const getUsersMe = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      throw new NotFoundError(ErrorMessage.USER_NOT_FOUND);
+    } else {
+      res.send(user);
+    }
+  } catch (error) {
+    if (error instanceof Error.CastError) {
       next(new BadRequestError(ErrorMessage.INCORRECT_DATA));
     } else {
       next(error);

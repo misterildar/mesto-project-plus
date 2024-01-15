@@ -1,28 +1,43 @@
 import mongoose from 'mongoose';
 import express, { NextFunction, Response } from 'express';
+import { errors } from 'celebrate';
+import auth from './middlewares/auth';
 import userRouter from './routes/users';
 import cardRouter from './routes/cards';
-import { UserRequest } from './utils/userRequest';
 import errorHandler from './utils/errors/errorHandler';
-import NotFoundError from './utils/errors/notFoundError';
+import pageNotExist from './utils/errors/page-not-exist';
+import { login, createUser } from './controllers/users';
+import { requestLogger, errorLogger } from './middlewares/logger';
 import { DEFAULT_PORT, MONGO_DB_URL } from './utils/constants';
+import {
+  createUserValidation,
+  loginValidation,
+} from './middlewares/validation-user';
+import limiter from './utils/rate-limit';
 
 const app = express();
 
+app.use(limiter);
+
 const { PORT = DEFAULT_PORT } = process.env;
 
-app.use((req: UserRequest, res: Response, next: NextFunction) => {
-  req.user = { _id: '659a6b45373b045118e16f1e' };
-  next();
-});
-
 app.use(express.json());
-app.use(userRouter);
-app.use(cardRouter);
 
-app.use((req: UserRequest, res: Response, next: NextFunction) => {
-  next(new NotFoundError('Страницы не существует'));
-});
+app.use(requestLogger);
+
+app.post('/signin', loginValidation, login);
+app.post('/signup', createUserValidation, createUser);
+
+app.use(auth);
+
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
+
+app.use(pageNotExist);
+
+app.use(errorLogger);
+
+app.use(errors());
 
 app.use(errorHandler);
 

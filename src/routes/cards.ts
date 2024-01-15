@@ -6,12 +6,16 @@ import {
   likesCard,
   deleteLikesCard,
 } from '../controllers/cards';
+import {
+  createCardValidation,
+  deleteCardByIdValidation,
+} from '../middlewares/validation-card';
 
 const cardRouter = Router();
 
 cardRouter.get('/cards', getCards);
-cardRouter.post('/cards', createCard);
-cardRouter.delete('/cards/:cardId', deleteCardById);
+cardRouter.post('/cards', createCardValidation, createCard);
+cardRouter.delete('/cards/:cardId', deleteCardByIdValidation, deleteCardById);
 cardRouter.put('/cards/:cardId/likes', likesCard);
 cardRouter.delete('/cards/:cardId/likes', deleteLikesCard);
 

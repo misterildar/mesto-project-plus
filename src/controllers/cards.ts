@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import Card from '../models/card';
 import { UserRequest } from '../utils/userRequest';
 import NotFoundError from '../utils/errors/notFoundError';
+import ForbiddenError from '../utils/errors/forbiddenError';
 import BadRequestError from '../utils/errors/badRequestError';
 import { StatusCodes, ErrorMessage } from '../utils/constants';
 
@@ -39,7 +40,7 @@ export const createCard = async (
 };
 
 export const deleteCardById = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -49,6 +50,9 @@ export const deleteCardById = async (
     if (!deleteCard) {
       throw new NotFoundError(ErrorMessage.CARD_NOT_FOUND);
     } else {
+      if (deleteCard.owner.toString() !== req.user?._id) {
+        next(new ForbiddenError(ErrorMessage.FORBIDDEN));
+      }
       res.status(StatusCodes.OK).send(deleteCard);
     }
   } catch (error) {
